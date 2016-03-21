@@ -444,7 +444,7 @@ class Scraper < ActiveRecord::Base
         'Automatic update to make ScraperWiki scraper work on morph.io')
     end
 
-    create_scraper_progress.update('Synching repository', 80)
+    create_scraper_progress.update('Syncing repository', 80)
     synchronise_repo
 
     # Forking has finished
