@@ -28,7 +28,7 @@ gem 'redis'
 gem 'foreman'
 gem 'faraday'
 # gem 'jquery-turbolinks'
-gem 'archive-tar-minitar'
+gem 'archive-tar-minitar', '>= 0.6.1'
 
 # We're currently only supporting the plain text, markdown and textile
 # markups for the README. If we want more then we need to install some
