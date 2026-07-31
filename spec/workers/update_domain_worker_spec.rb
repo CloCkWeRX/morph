@@ -17,7 +17,7 @@ describe UpdateDomainWorker do
       allow(resource).to receive(:get).and_return(html_content)
 
       expect { described_class.new.perform(domain.id) }.to change { domain.reload.meta }.from(nil).to("Get structured data out of the web.")
-                                                           .and change { domain.reload.title }.from(nil).to("morph.io")
+                                                                                        .and change { domain.reload.title }.from(nil).to("morph.io")
     end
   end
 end
