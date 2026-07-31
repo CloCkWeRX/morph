@@ -21,7 +21,6 @@ describe ApplicationController do
       allow(controller).to receive(:root_path).and_return(root_path)
     end
 
-    # FIXME: This is not safe to do!
     it "returns referer path" do
       referer = "/some_user/some_scraper"
       allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer))
@@ -35,6 +34,63 @@ describe ApplicationController do
 
       path = controller.send(:after_sign_out_path_for, :any_scope)
       expect(path).to eq root_path
+    end
+
+    it "returns matching host referrer" do
+      referer = "http://test.host/some_user/some_scraper"
+      allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer, host: "test.host"))
+
+      path = controller.send(:after_sign_out_path_for, :any_scope)
+      expect(path).to eq referer
+    end
+
+    it "rejects unmatching host referrer" do
+      referer = "http://evil.example.com/some_user/some_scraper"
+      allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer, host: "test.host"))
+
+      path = controller.send(:after_sign_out_path_for, :any_scope)
+      expect(path).to eq root_path
+    end
+
+    it "rejects protocol relative referrer '//evil.com'" do
+      referer = "//evil.com/some_user/some_scraper"
+      allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer, host: "test.host"))
+
+      path = controller.send(:after_sign_out_path_for, :any_scope)
+      expect(path).to eq root_path
+    end
+
+    it "rejects protocol relative referrer '///evil.com'" do
+      referer = "///evil.com/some_user/some_scraper"
+      allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer, host: "test.host"))
+
+      path = controller.send(:after_sign_out_path_for, :any_scope)
+      expect(path).to eq root_path
+    end
+
+    it "rejects referrer starting with '/\\'" do
+      referer = "/\\evil.com"
+      allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer, host: "test.host"))
+
+      path = controller.send(:after_sign_out_path_for, :any_scope)
+      expect(path).to eq root_path
+    end
+
+    it "rejects malformed referrer" do
+      referer = "http:[]"
+      allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer, host: "test.host"))
+
+      path = controller.send(:after_sign_out_path_for, :any_scope)
+      expect(path).to eq root_path
+    end
+
+    it "returns custom host from ALLOWED_REDIRECT_HOSTS environment variable" do
+      referer = "http://allowed.host/some_user/some_scraper"
+      allow(ENV).to receive(:fetch).with("ALLOWED_REDIRECT_HOSTS", "").and_return("allowed.host, other.host")
+      allow(controller).to receive(:request).and_return(instance_double(ActionDispatch::Request, referer: referer, host: "test.host"))
+
+      path = controller.send(:after_sign_out_path_for, :any_scope)
+      expect(path).to eq referer
     end
   end
 
