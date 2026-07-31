@@ -35,8 +35,6 @@
 # Foreign Keys
 #
 #  fk_rails_...  (create_scraper_progress_id => create_scraper_progresses.id)
-#
-#  fk_rails_...  (create_scraper_progress_id => create_scraper_progresses.id)
 
 require "spec_helper"
 

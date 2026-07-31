@@ -5,7 +5,7 @@
 
 source "https://rubygems.org"
 
-# ruby "2.7.6"
+ruby "2.7.6"
 
 gem "dotenv-rails"
 
@@ -20,7 +20,6 @@ gem "bootstrap-select-rails"
 gem "cocoon"
 gem "devise"
 gem "docker-api", require: "docker"
-gem "excon", ">= 0.99.0"
 
 # We're using Faraday directly in one place (to workaround an octokit problem) and that
 # depends on version 2.
