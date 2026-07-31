@@ -7,7 +7,7 @@
 #
 #  id         :integer          not null, primary key
 #  meta       :text(65535)
-#  name       :string(255)      default(""), not null
+#  name       :string(255)      not null
 #  title      :text(65535)
 #  created_at :datetime
 #  updated_at :datetime
@@ -20,6 +20,23 @@
 require "spec_helper"
 
 describe Domain do
+  describe "#meta_or_title" do
+    it "returns meta if meta is present" do
+      domain = described_class.new(meta: "meta description", title: "page title")
+      expect(domain.meta_or_title).to eq("meta description")
+    end
+
+    it "returns title if meta is absent but title is present" do
+      domain = described_class.new(meta: nil, title: "page title")
+      expect(domain.meta_or_title).to eq("page title")
+    end
+
+    it "returns nil if both are absent" do
+      domain = described_class.new(meta: nil, title: nil)
+      expect(domain.meta_or_title).to be_nil
+    end
+  end
+
   describe "#update_meta!" do
     it do
       resource = instance_double(RestClient::Resource, get: "<html><head><title>\nmorph.io   </title><meta name='Description' content='Get structured data out of the web. Code collaboration through GitHub. Run your scrapers in the cloud.'></head></html>")
