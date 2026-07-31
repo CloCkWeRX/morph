@@ -5,7 +5,7 @@
 
 source "https://rubygems.org"
 
-ruby "3.2.3"
+ruby "2.7.6"
 
 gem "dotenv-rails"
 
