@@ -32,7 +32,33 @@ class ApplicationController < ActionController::Base
 
   sig { params(_resource: T.untyped).returns(T.nilable(String)) }
   def after_sign_out_path_for(_resource)
-    request.referer ? URI.parse(request.referer).path : root_path
+    if request.referer && _url_host_allowed?(request.referer)
+      request.referer
+    else
+      root_path
+    end
+  end
+
+  sig { params(url: T.nilable(String)).returns(T::Boolean) }
+  def _url_host_allowed?(url)
+    return false if url.nil? || url.blank?
+
+    uri = URI.parse(url)
+    host = uri.host
+
+    if host.nil?
+      # Only allow relative paths that start with a single slash, not double slashes
+      return url.start_with?("/") && !url.start_with?("//") && !url.start_with?("/\\")
+    end
+
+    # Otherwise, check if the host matches the current application host
+    return true if host == request.host
+
+    # Or check if the host is in our allowed hosts extend list from environment variable
+    allowed_hosts = ENV.fetch("ALLOWED_REDIRECT_HOSTS", "").split(",").map(&:strip).reject(&:blank?)
+    allowed_hosts.include?(host)
+  rescue URI::InvalidURIError, ArgumentError
+    false
   end
 
   # Overriding the default ability class name used because we've split them out. See
